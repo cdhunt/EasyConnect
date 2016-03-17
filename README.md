@@ -1,11 +1,13 @@
-### Get the installer for the latest version (1.1) <a href="https://www.dropbox.com/s/mp8f6a5bgwbyww0/EasyConnect-1.1.msi">here</a>.
+### Get the installer for the latest version <a href="http://lstratman.github.io/EasyConnect/updates/EasyConnect.msi" target="_blank">here</a>.
 
-This is a Windows tabbed remote desktop application whose UI was designed to resemble Chrome's.  Currently it supports Microsoft's Remote Desktop Protocol (RDP), Secure Shell (SSH), and VNC but has a plugin architecture designed to enable third-party support for other protocols such as Citrix, etc.
+This is a Windows tabbed remote desktop application whose UI was designed to resemble Chrome's.  Currently it supports Microsoft's Remote Desktop Protocol (RDP), Secure Shell (SSH), PowerShell, and VNC but has a plugin architecture designed to enable third-party support for other protocols such as Citrix, etc.
 
-<a href="http://lstratman.github.com/EasyConnect/images/screenshots/bookmarks.jpg" target="_new"><img src="http://lstratman.github.com/EasyConnect/images/screenshots/thumbnails/bookmarks.jpg"/></a>
-<a href="http://lstratman.github.com/EasyConnect/images/screenshots/sessions.jpg" target="_new"><img src="http://lstratman.github.com/EasyConnect/images/screenshots/thumbnails/sessions.jpg"/></a>
-<a href="http://lstratman.github.com/EasyConnect/images/screenshots/globaloptions.jpg" target="_new"><img src="http://lstratman.github.com/EasyConnect/images/screenshots/thumbnails/globaloptions.jpg"/></a>
-<a href="http://lstratman.github.com/EasyConnect/images/screenshots/history.jpg" target="_new"><img src="http://lstratman.github.com/EasyConnect/images/screenshots/thumbnails/history.jpg"/></a>
+<a href="http://lstratman.github.com/EasyConnect/images/screenshots/bookmarks.png" target="_blank"><img src="http://lstratman.github.com/EasyConnect/images/screenshots/thumbnails/bookmarks.png"/></a>
+<a href="http://lstratman.github.com/EasyConnect/images/screenshots/rdp.png" target="_blank"><img src="http://lstratman.github.com/EasyConnect/images/screenshots/thumbnails/rdp.png"/></a>
+<a href="http://lstratman.github.com/EasyConnect/images/screenshots/ssh.png" target="_blank"><img src="http://lstratman.github.com/EasyConnect/images/screenshots/thumbnails/ssh.png"/></a>
+<a href="http://lstratman.github.com/EasyConnect/images/screenshots/powershell.png" target="_blank"><img src="http://lstratman.github.com/EasyConnect/images/screenshots/thumbnails/powershell.png"/></a>
+<a href="http://lstratman.github.com/EasyConnect/images/screenshots/options.png" target="_blank"><img src="http://lstratman.github.com/EasyConnect/images/screenshots/thumbnails/options.png"/></a>
+<a href="http://lstratman.github.com/EasyConnect/images/screenshots/history.png" target="_blank"><img src="http://lstratman.github.com/EasyConnect/images/screenshots/thumbnails/history.png"/></a>
 
 ## Implementing Protocol Plugins
 
@@ -18,4 +20,4 @@ For an example of implementing a protocol plugin, you can look at the EasyConnec
 
 That's it!  Just make sure that the assembly for your protocol is in the EasyConnect directory and it will be picked up and used automatically by the application.  The protocol plugin architecture is still evolving, so if you find limitations to the API or want other things added to enable you to implement your protocol, please feel free to contact me or send me a pull request.  I'm also happy to accept pull requests for your protocol projects to include them in the main application.
 
-<a href="http://wyday.com/wybuild/" target="_new"><img src="http://programmingnet.weebly.com/files/theme/wybuild.png" valign="middle" hspace="7"/></a> Automatic updates and create update patches with wyBuild.
+This project is licensed under the [GPL](GPL.txt)

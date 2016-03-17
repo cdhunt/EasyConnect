@@ -88,6 +88,8 @@ namespace EasyConnect
 		/// </summary>
 		protected List<IConnection> _validAutoCompleteEntries;
 
+		protected HtmlPanel _urlPanel;
+
 		/// <summary>
 		/// Default constructor; initializes the UI for the OmniBar.
 		/// </summary>
@@ -113,10 +115,43 @@ namespace EasyConnect
 				autoCompletePanel.Click += autoCompletePanel_Click;
 				autoCompletePanel.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
 
+				PictureBox autoCompletePictureBox = new PictureBox
+					                                    {
+						                                    Width = 16,
+						                                    Height = 16,
+						                                    Left = 5,
+						                                    Top = autoCompletePanel.Top + 7
+					                                    };
+
+				_omniBarPanel.Controls.Add(autoCompletePictureBox);
 				_omniBarPanel.Controls.Add(autoCompletePanel);
 			}
 
 			urlTextBox.LostFocus += urlTextBox_LostFocus;
+			_iconPictureBox.Image = new Icon(Resources.EasyConnect, 16, 16).ToBitmap();
+
+			_urlPanel = new HtmlPanel
+				            {
+					            AutoScroll = false,
+								Width = _urlPanelContainer.Width,
+								Height = _urlPanelContainer.Height,
+					            Left = 0,
+								Top = 0,
+					            Font = urlTextBox.Font,
+								Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top
+				            };
+			_urlPanel.Click += _urlPanel_Click;
+			_urlPanelContainer.Controls.Add(_urlPanel);
+			urlTextBox.Visible = false;
+		}
+
+		void _urlPanel_Click(object sender, EventArgs e)
+		{
+			_urlPanelContainer.Visible = false;
+			
+			urlTextBox.Visible = true;
+			urlTextBox.Focus();
+			urlTextBox.SelectAll();
 		}
 
 		/// <summary>
@@ -131,7 +166,7 @@ namespace EasyConnect
 			Icon = ConnectionFactory.GetProtocol(connection).ProtocolIcon;
 			Text = connection.DisplayName;
 			_suppressOmniBar = true;
-			urlTextBox.Text = connection.Host;
+			urlTextBox.Text = ConnectionFactory.GetProtocol(connection).ProtocolPrefix + "://" + connection.Host;
 			_suppressOmniBar = false;
 		}
 
@@ -212,6 +247,30 @@ namespace EasyConnect
 		/// <param name="e">Arguments associated with this event.</param>
 		private void urlTextBox_LostFocus(object sender, EventArgs e)
 		{
+			urlTextBox.Visible = false;
+			_urlPanelContainer.Visible = true;
+
+			if (!String.IsNullOrEmpty(urlTextBox.Text))
+			{
+				Match urlMatch = Regex.Match(urlTextBox.Text, "^((?<protocol>.*)://){0,1}(?<hostName>.*)$");
+
+				_urlPanel.Text = String.Format(
+					@"<div style=""background-color: #FFFFFF; font-family: {2}; font-size: {3}pt; height: {4}px; color: #9999BF;"">{0}://<font color=""black"">{1}</font></div>",
+					urlMatch.Groups["protocol"].Success
+						? urlMatch.Groups["protocol"].Value
+						: ConnectionFactory.GetDefaultProtocol().ProtocolPrefix, urlMatch.Groups["hostName"].Value, urlTextBox.Font.FontFamily.GetName(0),
+					urlTextBox.Font.SizeInPoints, _urlPanel.Height);
+
+				urlTextBox.Text = (urlMatch.Groups["protocol"].Success
+					                   ? urlMatch.Groups["protocol"].Value
+					                   : ConnectionFactory.GetDefaultProtocol().ProtocolPrefix) + "://" + urlMatch.Groups["hostName"];
+			}
+
+			else
+			{
+				_urlPanel.Text = "";
+			}
+
 			if (AutoHideToolbar && PointToClient(Cursor.Position).Y > toolbarBackground.Height)
 			{
 				_bookmarksMenu.Hide();
@@ -248,23 +307,8 @@ namespace EasyConnect
 			_omniBarPanel.Visible = false;
 			_omniBarBorder.Visible = false;
 
-			_connection = _validAutoCompleteEntries[_omniBarPanel.Controls.IndexOf((HtmlPanel) sender)];
+			_connection = _validAutoCompleteEntries[_omniBarPanel.Controls.IndexOf((HtmlPanel) sender) / 2];
 			Connect();
-		}
-
-		/// <summary>
-		/// Called from <see cref="MainForm.UpdateAvailable"/> to set the icon for the tools button and the text for the updates menu item appropriately when
-		/// an automatic update is available for the application or not.
-		/// </summary>
-		/// <param name="updateAvailable">Whether or not an update is available.</param>
-		public void SetUpdateAvailableState(bool updateAvailable)
-		{
-			_updatesMenuItem.Text = updateAvailable
-				                        ? "Install update"
-				                        : "Check for update";
-			_toolsButton.Image = updateAvailable
-				                     ? Resources.ToolsActiveUpdate
-				                     : Resources.ToolsActive;
 		}
 
 		/// <summary>
@@ -313,8 +357,10 @@ namespace EasyConnect
 			{
 				if (_omniBarFocusIndex > 0)
 				{
-					UnfocusOmniBarItem((HtmlPanel) _omniBarPanel.Controls[_omniBarFocusIndex]);
-					FocusOmniBarItem((HtmlPanel) _omniBarPanel.Controls[--_omniBarFocusIndex]);
+					UnfocusOmniBarItem((HtmlPanel) _omniBarPanel.Controls[_omniBarFocusIndex * 2 + 1]);
+
+					_omniBarFocusIndex--;
+					FocusOmniBarItem((HtmlPanel) _omniBarPanel.Controls[_omniBarFocusIndex * 2 + 1]);
 				}
 
 				e.Handled = true;
@@ -322,12 +368,13 @@ namespace EasyConnect
 
 			else if (e.KeyCode == Keys.Down && _omniBarPanel.Visible)
 			{
-				if (_omniBarFocusIndex < _omniBarPanel.Controls.Count - 1)
+				if (_omniBarFocusIndex / 2 < _omniBarPanel.Controls.Count - 1)
 				{
 					if (_omniBarFocusIndex > -1)
-						UnfocusOmniBarItem((HtmlPanel) _omniBarPanel.Controls[_omniBarFocusIndex]);
+						UnfocusOmniBarItem((HtmlPanel) _omniBarPanel.Controls[_omniBarFocusIndex * 2 + 1]);
 
-					FocusOmniBarItem((HtmlPanel) _omniBarPanel.Controls[++_omniBarFocusIndex]);
+					_omniBarFocusIndex++;
+					FocusOmniBarItem((HtmlPanel) _omniBarPanel.Controls[_omniBarFocusIndex * 2 + 1]);
 				}
 
 				e.Handled = true;
@@ -348,6 +395,7 @@ namespace EasyConnect
 		protected void FocusOmniBarItem(HtmlPanel omniBarItem)
 		{
 			omniBarItem.Text = _fontColorRegex.Replace(_backgroundColorRegex.Replace(omniBarItem.Text, "background-color: #3D9DFD;"), "; color: #9DCDFD;");
+			(omniBarItem.Parent.Controls[omniBarItem.Parent.Controls.IndexOf(omniBarItem) - 1] as PictureBox).BackColor = Color.FromArgb(61, 157, 253);
 		}
 
 		/// <summary>
@@ -357,6 +405,7 @@ namespace EasyConnect
 		protected void UnfocusOmniBarItem(HtmlPanel omniBarItem)
 		{
 			omniBarItem.Text = _fontColorRegex.Replace(_backgroundColorRegex.Replace(omniBarItem.Text, "background-color: #FFFFFF;"), "; color: #9999BF;");
+			(omniBarItem.Parent.Controls[omniBarItem.Parent.Controls.IndexOf(omniBarItem) - 1] as PictureBox).BackColor = Color.White;
 		}
 
 		/// <summary>
@@ -371,14 +420,27 @@ namespace EasyConnect
 				_connectionContainerPanel.Height += 31;
 			}
 
+			_urlPanel.Text = String.Format(
+				@"<div style=""background-color: #FFFFFF; font-family: {2}; font-size: {3}pt; height: {4}px; color: #9999BF;"">{0}://<font color=""black"">{1}</font></div>",
+				ConnectionFactory.GetProtocol(_connection).ProtocolPrefix, _connection.Host, urlTextBox.Font.FontFamily.GetName(0), urlTextBox.Font.SizeInPoints,
+				_urlPanel.Height);
+
+			_urlPanelContainer.Visible = true;
+			urlTextBox.Visible = false;
+
+			_urlPanel.PerformLayout();
+
 			// Initialize the UI elements
 			_connectionContainerPanelSizeSet = true;
 			_connectionForm = ConnectionFactory.CreateConnectionForm(_connection, _connectionContainerPanel);
+			_connectionForm.ConnectionLost += _connectionForm_ConnectionLost;
+			_connectionForm.Connected += _connectionForm_Connected;
 			Icon = ConnectionFactory.GetProtocol(_connection).ProtocolIcon;
+			_iconPictureBox.Image = new Icon(Icon, 16, 16).ToBitmap();
 			Text = _connection.DisplayName;
 
 			_suppressOmniBar = true;
-			urlTextBox.Text = _connection.Host;
+			urlTextBox.Text = ConnectionFactory.GetProtocol(_connection).ProtocolPrefix + "://" + _connection.Host;
 			_suppressOmniBar = false;
 
 			try
@@ -394,6 +456,22 @@ namespace EasyConnect
 
 			ParentTabs.RegisterConnection(this, _connection);
 			HideToolbar();
+		}
+
+		private void _connectionForm_Connected(object sender, EventArgs e)
+		{
+			Icon = ConnectionFactory.GetProtocol(_connection).ProtocolIcon;
+			_iconPictureBox.Image = new Icon(Icon, 16, 16).ToBitmap();
+
+			ParentTabs.RedrawTabs();
+		}
+
+		private void _connectionForm_ConnectionLost(object sender, EventArgs e)
+		{
+			_iconPictureBox.Image = new Icon(Resources.EasyConnect, 16, 16).ToBitmap();
+
+			Icon = Resources.Disconnected;
+			ParentTabs.RedrawTabs();
 		}
 
 		/// <summary>
@@ -414,7 +492,8 @@ namespace EasyConnect
 		/// <param name="e">Arguments associated with this event.</param>
 		private void _bookmarksButton_MouseLeave(object sender, EventArgs e)
 		{
-			_bookmarksButton.BackgroundImage = null;
+			if (!_bookmarksMenu.Visible)
+				_bookmarksButton.BackgroundImage = null;
 		}
 
 		/// <summary>
@@ -435,7 +514,8 @@ namespace EasyConnect
 		/// <param name="e">Arguments associated with this event.</param>
 		private void _toolsButton_MouseLeave(object sender, EventArgs e)
 		{
-			_toolsButton.BackgroundImage = null;
+			if (!_toolsMenu.Visible)
+				_toolsButton.BackgroundImage = null;
 		}
 
 		/// <summary>
@@ -455,8 +535,17 @@ namespace EasyConnect
 		/// <param name="e">Arguments associated with this event.</param>
 		private void _toolsButton_Click(object sender, EventArgs e)
 		{
+			_toolsButton.BackgroundImage = Resources.ButtonPressedBackground;
 			_toolsMenu.DefaultDropDownDirection = ToolStripDropDownDirection.Left;
 			_toolsMenu.Show(_toolsButton, -187 + _toolsButton.Width, _toolsButton.Height);
+		}
+
+		protected override void OnVisibleChanged(EventArgs e)
+		{
+			base.OnVisibleChanged(e);
+
+			if (Visible)
+				ConnectionWindow_Shown(null, null);
 		}
 
 		/// <summary>
@@ -466,6 +555,8 @@ namespace EasyConnect
 		/// <param name="e">Arguments associated with this event.</param>
 		private void _bookmarksButton_Click(object sender, EventArgs e)
 		{
+			_bookmarksButton.BackgroundImage = Resources.ButtonPressedBackground;
+
 			// Clear out the bookmarks menu beyond the first two entries, "Bookmarks manager" and "Bookmark this server"
 			while (_bookmarksMenu.Items.Count > 2)
 				_bookmarksMenu.Items.RemoveAt(2);
@@ -522,10 +613,7 @@ namespace EasyConnect
 					(object sender, EventArgs e) =>
 						{
 							if (_connectionForm != null)
-							{
-								_connectionForm.CloseParentFormOnDisconnect = false;
 								_connectionForm.Close();
-							}
 
 							_connection = _menuItemConnections[(ToolStripMenuItem) sender];
 							Connect();
@@ -637,30 +725,19 @@ namespace EasyConnect
 			if (_connectionForm != null && _connectionForm.IsConnected && !_connectionForm.ContainsFocus)
 				_connectionForm.Focus();
 
-			if (string.IsNullOrEmpty(urlTextBox.Text))
-				urlTextBox.Focus();
+			if (string.IsNullOrEmpty(urlTextBox.Text) || _toolbarShown)
+				_urlPanel_Click(null, null);
 		}
 
 		/// <summary>
-		/// Handler method that's called when the user clicks on the "Check for updates" menu item under the tools menu.  Starts the installation process if
-		/// updates are already available, otherwise opens a <see cref="CheckForUpdatesWindow"/>.
+		/// Handler method that's called when the user clicks on the "Check for updates" menu item under the tools menu.  Starts the update check process by
+		/// calling <see cref="MainForm.CheckForUpdate"/> on <see cref="ParentTabs"/>.
 		/// </summary>
 		/// <param name="sender">Object from which this event originated.</param>
 		/// <param name="e">Arguments associated with this event.</param>
 		private void _updatesMenuItem_Click(object sender, EventArgs e)
 		{
-			if (ParentTabs.UpdateAvailable)
-				ParentTabs.InstallUpdate();
-
-			else
-			{
-				CheckForUpdatesWindow checkForUpdatesWindow = new CheckForUpdatesWindow();
-				DialogResult result = checkForUpdatesWindow.ShowDialog(ParentTabs);
-
-				// Start the installation process if the user clicked OK from the updates window
-				if (result == DialogResult.OK)
-					ParentTabs.InstallUpdate();
-			}
+			ParentTabs.CheckForUpdate();
 		}
 
 		/// <summary>
@@ -674,7 +751,7 @@ namespace EasyConnect
 			if (_toolbarShown || !AutoHideToolbar || !IsHandleCreated || (_animationTimer != null && _animationTimer.Enabled))
 				return;
 
-			urlTextBox.Focus();
+			_urlPanel_Click(null, null);
 
 			_animationTicks = 0;
 			_animationTimer = new Timer(20);
@@ -760,6 +837,8 @@ namespace EasyConnect
 		private void urlTextBox_Enter(object sender, EventArgs e)
 		{
 			_autoCompleteEntries.Clear();
+			_urlPanelContainer.Visible = false;
+			urlTextBox.Visible = true;
 		}
 
 		/// <summary>
@@ -781,8 +860,8 @@ namespace EasyConnect
 
 			IConnection currentlyFocusedItem = null;
 
-			if (_omniBarFocusIndex != -1)
-				currentlyFocusedItem = _validAutoCompleteEntries[_omniBarFocusIndex];
+			if (_omniBarFocusIndex != -1 && _validAutoCompleteEntries.Count > 0)
+	            currentlyFocusedItem = _validAutoCompleteEntries[_omniBarFocusIndex];
 
 			// If this is the first text change since the user focused on the text box, then we get the list of all bookmarks and history items that weren't
 			// from bookmarks and then use them all as potential auto-complete entries
@@ -819,12 +898,13 @@ namespace EasyConnect
 				for (int i = 0; i < _validAutoCompleteEntries.Count; i++)
 				{
 					IConnection connection = _validAutoCompleteEntries[i];
-					HtmlPanel autoCompletePanel = _omniBarPanel.Controls[i] as HtmlPanel;
+					HtmlPanel autoCompletePanel = _omniBarPanel.Controls[i * 2 + 1] as HtmlPanel;
+					PictureBox autoCompletePictureBox = _omniBarPanel.Controls[i * 2] as PictureBox;
 
 					// Set the text of the auto-complete item to "{Protocol}://{URI} - {DisplayName}" and bold the matching portions of the text
 					autoCompletePanel.Text =
 						String.Format(
-							@"<div style=""background-color: #FFFFFF; padding: 5px; font-family: {3}; font-size: {4}pt; height: 30px; color: #9999BF;""><font color=""green"">{0}://{1}</font>{2}</div>",
+							@"<div style=""background-color: #FFFFFF; padding-left: 29px; padding-top: 5px; padding-bottom: 5px; padding-right: 5px; font-family: {3}; font-size: {4}pt; height: 30px; color: #9999BF;""><font color=""green"">{0}://{1}</font>{2}</div>",
 							ConnectionFactory.GetProtocol(connection).ProtocolPrefix,
 							Regex.Replace(connection.Host, urlTextBox.Text, "<b>$0</b>", RegexOptions.IgnoreCase), connection.DisplayName == connection.Host
 								                                                                                       ? ""
@@ -834,6 +914,9 @@ namespace EasyConnect
 									                                                                                         urlTextBox.Text, "<b>$0</b>",
 									                                                                                         RegexOptions.IgnoreCase),
 							urlTextBox.Font.FontFamily.GetName(0), urlTextBox.Font.SizeInPoints);
+
+					autoCompletePictureBox.Image = new Icon(ConnectionFactory.GetProtocol(connection).ProtocolIcon, 16, 16).ToBitmap();
+					autoCompletePictureBox.BackColor = Color.White;
 
 					// If the user was focused on this item, highlight it
 					if (connection == currentlyFocusedItem)
@@ -865,7 +948,7 @@ namespace EasyConnect
 		/// <param name="e">Arguments associated with this event.</param>
 		private void autoCompletePanel_MouseLeave(object sender, EventArgs e)
 		{
-			if (_omniBarFocusIndex != -1 && (sender as HtmlPanel) == (_omniBarPanel.Controls[_omniBarFocusIndex] as HtmlPanel))
+			if (_omniBarFocusIndex != -1 && (sender as HtmlPanel) == (_omniBarPanel.Controls[_omniBarFocusIndex * 2 + 1] as HtmlPanel))
 				return;
 
 			(sender as HtmlPanel).Text = _backgroundColorRegex.Replace((sender as HtmlPanel).Text, "background-color: #FFFFFF;");
@@ -878,7 +961,7 @@ namespace EasyConnect
 		/// <param name="e">Arguments associated with this event.</param>
 		private void autoCompletePanel_MouseEnter(object sender, EventArgs e)
 		{
-			if (_omniBarFocusIndex != -1 && (sender as HtmlPanel) == (_omniBarPanel.Controls[_omniBarFocusIndex] as HtmlPanel))
+			if (_omniBarFocusIndex != -1 && (sender as HtmlPanel) == (_omniBarPanel.Controls[_omniBarFocusIndex * 2 + 1] as HtmlPanel))
 				return;
 
 			(sender as HtmlPanel).Text = _backgroundColorRegex.Replace((sender as HtmlPanel).Text, "background-color: #CDE5FE;");
@@ -918,7 +1001,10 @@ namespace EasyConnect
 		/// <param name="e">Arguments associated with this event.</param>
 		private void _newWindowMenuItem_Click(object sender, EventArgs e)
 		{
-			EasyConnect.OpenWindow(new MainForm(new List<Guid>()));
+			MainForm newWindow = new MainForm(new List<Guid>());
+			ParentTabs.ApplicationContext.OpenWindow(newWindow);
+
+			newWindow.Show();
 		}
 
 		/// <summary>
@@ -965,6 +1051,24 @@ namespace EasyConnect
 			{
 				return obj.GetHashCode();
 			}
+		}
+
+		private void _bookmarksMenu_VisibleChanged(object sender, EventArgs e)
+		{
+			if (!_bookmarksMenu.Visible)
+				_bookmarksButton.BackgroundImage = null;
+		}
+
+		private void _toolsMenu_VisibleChanged(object sender, EventArgs e)
+		{
+			if (!_toolsMenu.Visible)
+				_toolsButton.BackgroundImage = null;
+		}
+
+		private void _aboutMenuItem_Click(object sender, EventArgs e)
+		{
+			AboutBox aboutBox = new AboutBox();
+			aboutBox.ShowDialog(ParentTabs);
 		}
 	}
 }

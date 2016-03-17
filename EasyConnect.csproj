@@ -41,6 +41,8 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">.\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -76,22 +78,25 @@
     <StartupObject>EasyConnect.EasyConnect</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AutomaticUpdater, Version=2.6.16.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\AutomaticUpdater.dll</HintPath>
+    <Reference Include="AppLimit.NetSparkle.Net40">
+      <HintPath>lib\AppLimit.NetSparkle.Net40.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.WindowsAPICodePack, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>.NETTitleBarTabs\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
+      <HintPath>packages\TitleBarTabs.1.1.3\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>.NETTitleBarTabs\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
+      <HintPath>packages\TitleBarTabs.1.1.3\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="SecurePasswordTextBox, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="Stratman.Windows.Forms.TitleBarTabs, Version=1.1.3.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>packages\TitleBarTabs.1.1.3\lib\Stratman.Windows.Forms.TitleBarTabs.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">
@@ -108,22 +113,42 @@
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="Win32Interop.Dwmapi, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>packages\Win32Interop.Dwmapi.1.0.1\lib\Win32Interop.Dwmapi.dll</HintPath>
+    </Reference>
+    <Reference Include="Win32Interop.Gdi32, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>packages\Win32Interop.Gdi32.1.0.1\lib\Win32Interop.Gdi32.dll</HintPath>
+    </Reference>
+    <Reference Include="Win32Interop.Kernel32, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>packages\Win32Interop.Kernel32.1.0.1\lib\Win32Interop.Kernel32.dll</HintPath>
+    </Reference>
+    <Reference Include="Win32Interop.User32, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>packages\Win32Interop.User32.1.0.1\lib\Win32Interop.User32.dll</HintPath>
+    </Reference>
+    <Reference Include="Win32Interop.Uxtheme, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>packages\Win32Interop.Uxtheme.1.0.1\lib\Win32Interop.Uxtheme.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AboutBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AboutBox.Designer.cs">
+      <DependentUpon>AboutBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="BookmarksWindow.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="BookmarksWindow.designer.cs">
       <DependentUpon>BookmarksWindow.cs</DependentUpon>
-    </Compile>
-    <Compile Include="CheckForUpdatesWindow.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="CheckForUpdatesWindow.Designer.cs">
-      <DependentUpon>CheckForUpdatesWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="ConnectionWindow.cs">
       <SubType>Form</SubType>
@@ -171,11 +196,11 @@
     <Compile Include="UsernamePasswordWindow.Designer.cs">
       <DependentUpon>UsernamePasswordWindow.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="AboutBox.resx">
+      <DependentUpon>AboutBox.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="BookmarksWindow.resx">
       <DependentUpon>BookmarksWindow.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="CheckForUpdatesWindow.resx">
-      <DependentUpon>CheckForUpdatesWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ConnectionWindow.resx">
       <DependentUpon>ConnectionWindow.cs</DependentUpon>
@@ -213,8 +238,7 @@
       <DependentUpon>UsernamePasswordWindow.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
-    <None Include="lib\client.wyc" />
-    <None Include="lib\wyUpdate.vshost.exe.manifest" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -232,10 +256,12 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="lib\AutomaticUpdater.dll" />
+    <Content Include="lib\AppLimit.NetSparkle.Net40.dll" />
     <Content Include="lib\System.Drawing.Html.dll" />
+    <None Include="Resources\About.png" />
+    <Content Include="Resources\ButtonPressedBackground.png" />
+    <Content Include="Resources\Disconnected.ico" />
     <Content Include="Resources\ToolsActiveUpdate.png" />
-    <None Include="lib\wyUpdate.exe" />
     <Content Include="Resources\EasyConnect.ico" />
     <Content Include="Resources\FolderOpen.png" />
     <Content Include="Resources\OptionsSidebarBackground.png" />
@@ -273,10 +299,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include=".NETTitleBarTabs\Stratman.Windows.Forms.TitleBarTabs.csproj">
-      <Project>{690ba0f7-d8fe-4ebe-ba39-8058086c7a09}</Project>
-      <Name>Stratman.Windows.Forms.TitleBarTabs</Name>
-    </ProjectReference>
     <ProjectReference Include="Common\EasyConnect.Common.csproj">
       <Project>{ABF68708-BDC0-4D29-A523-00EC942449B2}</Project>
       <Name>EasyConnect.Common</Name>
@@ -285,21 +307,17 @@
       <Project>{9794E3F6-45AA-4841-8AE3-60B9662A1B1E}</Project>
       <Name>EasyConnect.Protocols</Name>
     </ProjectReference>
+    <ProjectReference Include="Protocols\PowerShell\EasyConnect.Protocols.PowerShell.csproj">
+      <Project>{d52a0782-348b-4ee9-bd8f-c795ff184ff0}</Project>
+      <Name>EasyConnect.Protocols.PowerShell</Name>
+    </ProjectReference>
     <ProjectReference Include="Protocols\Rdp\EasyConnect.Protocols.Rdp.csproj">
-      <Project>{17C67EF4-73FC-46E7-A8C7-2BD963F7D81A}</Project>
+      <Project>{17c67ef4-73fc-46e7-a8c7-2bd963f7d81a}</Project>
       <Name>EasyConnect.Protocols.Rdp</Name>
     </ProjectReference>
     <ProjectReference Include="Protocols\Ssh\EasyConnect.Protocols.Ssh.csproj">
       <Project>{ad8e208e-4e00-4c37-98ab-ac1cf8538fb9}</Project>
       <Name>EasyConnect.Protocols.Ssh</Name>
-    </ProjectReference>
-    <ProjectReference Include="Win32Interop\Kernel32\Win32Interop.Kernel32.csproj">
-      <Project>{C50EB086-0E96-4D7F-9C23-E7632ABC46AB}</Project>
-      <Name>Win32Interop.Kernel32</Name>
-    </ProjectReference>
-    <ProjectReference Include="Win32Interop\User32\Win32Interop.User32.csproj">
-      <Project>{1c09da92-5492-4022-a090-961076a41185}</Project>
-      <Name>Win32Interop.User32</Name>
     </ProjectReference>
     <ProjectReference Include="Protocols\Vnc\EasyConnect.Protocols.Vnc.csproj">
       <Project>{13122d85-c813-4217-ae28-7921fc5588b2}</Project>
@@ -308,11 +326,11 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /y "$(ProjectDir)lib\wyUpdate.*" "$(TargetDir)"
-copy /y "$(ProjectDir)lib\client.wyc" "$(TargetDir)"
-copy /y "$(SolutionDir)Win32Interop\SystemHookCore\$(ConfigurationName)\SystemHookCore.dll" "$(TargetDir)"
+    <PostBuildEvent>copy /y "$(SolutionDir)Win32Interop\SystemHookCore\$(ConfigurationName)\SystemHookCore.dll" "$(TargetDir)"
+copy /y "$(SolutionDir)Protocols\Vnc\bin\$(ConfigurationName)\scvncctrl.dll" "$(TargetDir)"
 Exit /b 0</PostBuildEvent>
   </PropertyGroup>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

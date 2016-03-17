@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<?define ProductVersion="1.6.0.0" ?>
+	<?define UpgradeCode="D49D0936-12DD-4DCE-BB1C-413823B2D6D0" ?>
+
+	<Product Id="*" Name="$(var.EasyConnect.ProjectName)" Language="1033" Version="$(var.ProductVersion)" Manufacturer="Luke Stratman" UpgradeCode="$(var.UpgradeCode)">
+		<Package Id="*" InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Keywords="Installer" Description="$(var.EasyConnect.ProjectName) Installer" Manufacturer="Luke Stratman" Languages="1033"/>
+
+		<MediaTemplate EmbedCab="yes" />
+
+		<Property Id="PREVIOUSVERSIONSINSTALLED" Secure="yes" />
+
+		<Upgrade Id="$(var.UpgradeCode)">
+			<UpgradeVersion Minimum="1.0.0.0" Maximum="99.0.0.0" Property="PREVIOUSVERSIONSINSTALLED" IncludeMinimum="yes" IncludeMaximum="no" />
+		</Upgrade>
+
+		<Feature Id="ProductFeature" Title="$(var.EasyConnect.ProjectName)" Level="1" Description="$(var.EasyConnect.ProjectName) is a Windows tabbed remote desktop application whose UI was designed to resemble Chrome's, supporting the Remote Desktop Protocol (RDP), Secure Shell (SSH), and VNC protocols." Display="expand" ConfigurableDirectory="INSTALLFOLDER">
+			<Feature Id="MainExecutable" Title="Main Executable" Description="Main executable and common libraries." Level="1" Absent="disallow">
+				<ComponentGroupRef Id="MainExecutableComponents" />
+				<ComponentGroupRef Id="StartMenuComponents"/>
+			</Feature>
+			<Feature Id="RdpPlugin" Title="Remote Desktop Plugin" Description="Plugin to allow remote desktop (RDP) connections." Level="1" Absent="disallow">
+				<ComponentGroupRef Id="RdpPluginComponents"/>
+			</Feature>
+			<Feature Id="VncPlugin" Title="VNC Plugin" Description="Plugin to allow VNC connections." Level="1" Absent="allow">
+				<ComponentGroupRef Id="VncPluginComponents"/>
+			</Feature>
+			<Feature Id="SshPlugin" Title="Secure Shell Plugin" Description="Plugin to allow secure shell (SSH) connections." Level="1" Absent="allow">
+				<ComponentGroupRef Id="SshPluginComponents"/>
+				<ComponentGroupRef Id="PoderosaComponents"/>
+			</Feature>
+			<Feature Id="PowerShellPlugin" Title="PowerShell Plugin" Description="Plugin to allow PowerShell connections." Level="1" Absent="allow">
+				<ComponentGroupRef Id="PowerShellPluginComponents"/>
+				<ComponentGroupRef Id="TerminalControlComponents"/>
+			</Feature>
+		</Feature>
+
+		<Icon Id="EasyConnect.ico" SourceFile="$(var.EasyConnect.ProjectDir)Resources\EasyConnect.ico"/>
+
+		<UIRef Id="WixUI_FeatureTree" />
+		<UIRef Id="WixUI_ErrorProgressText" />
+
+		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER"/>
+		<Property Id="ARPPRODUCTICON" Value="EasyConnect.ico"/>
+
+		<WixVariable Id="WixUIBannerBmp" Value="Resources\Banner.bmp"/>
+		<WixVariable Id="WixUIDialogBmp" Value="Resources\Dialog.bmp"/>
+		<WixVariable Id="WixUILicenseRtf" Value="Resources\License.rtf"/>
+
+		<CustomAction Id="PreventDowngrading" Error="Newer version already installed." />
+
+		<InstallExecuteSequence>
+			<RemoveExistingProducts Before="InstallInitialize" />
+		</InstallExecuteSequence>
+	</Product>
+
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLFOLDER" Name="$(var.EasyConnect.ProjectName)"/>
+			</Directory>
+			<Directory Id="ProgramMenuFolder">
+				<Directory Id="ApplicationStartMenuFolder" Name="$(var.EasyConnect.ProjectName)"/>
+			</Directory>
+		</Directory>
+	</Fragment>
+
+	<Fragment>
+		<ComponentGroup Id="MainExecutableComponents" Directory="INSTALLFOLDER">
+			<Component Id="ExecutableComponent" Guid="A1710458-E27D-4F40-924D-6CDC30A455E2">
+				<File Id="Executable" Name="$(var.EasyConnect.TargetFileName)" Source="$(var.EasyConnect.TargetPath)"/>
+			</Component>
+			<Component Id="CommonAssemblyComponent" Guid="A7BBA837-FFFE-4767-A110-1464394FDDD0">
+				<File Id="CommonAssembly" Name="$(var.EasyConnect.Common.TargetFileName)" Source="$(var.EasyConnect.Common.TargetPath)"/>
+			</Component>
+			<Component Id="ProtocolsAssemblyComponent" Guid="552D2666-D2F2-4179-B2A5-B45EE77C905A">
+				<File Id="ProtocolsAssembly" Name="$(var.EasyConnect.Protocols.TargetFileName)" Source="$(var.EasyConnect.Protocols.TargetPath)"/>
+			</Component>
+			<Component Id="SecurePasswordTextBoxAssemblyComponent" Guid="9371568A-2804-4074-BE52-EC4E19C4BEFB">
+				<File Id="SecurePasswordTextBoxAssembly" Name="SecurePasswordTextBox.dll" Source="$(var.EasyConnect.TargetDir)SecurePasswordTextBox.dll"/>
+			</Component>
+			<Component Id="SystemDrawingHtmlAssemblyComponent" Guid="D84D05BB-2EA8-4999-8B7E-D0AD2E57441E">
+				<File Id="SystemDrawingHtmlAssembly" Name="System.Drawing.Html.dll" Source="$(var.EasyConnect.TargetDir)System.Drawing.Html.dll"/>
+			</Component>
+			<Component Id="TitleBarTabsComponent" Guid="99CFCC2A-BBC5-47A5-BFBA-E7164413A52D">
+				<File Id="TitleBarTabsAssembly" Name="Stratman.Windows.Forms.TitleBarTabs.dll" Source="$(var.EasyConnect.TargetDir)Stratman.Windows.Forms.TitleBarTabs.dll"/>
+				<File Id="WindowsAPICodePackAssembly" Name="Microsoft.WindowsAPICodePack.dll" Source="$(var.EasyConnect.TargetDir)Microsoft.WindowsAPICodePack.dll"/>
+				<File Id="WindowsAPICodePackShellAssembly" Name="Microsoft.WindowsAPICodePack.Shell.dll" Source="$(var.EasyConnect.TargetDir)Microsoft.WindowsAPICodePack.Shell.dll"/>
+			</Component>
+			<Component Id="DwmapiInteropAssemblyComponent" Guid="9E0D791D-5829-447F-8FF2-A0C0D0395B42">
+				<File Id="DwmapiInteropAssembly" Name="Win32Interop.Dwmapi.dll" Source="$(var.EasyConnect.TargetDir)Win32Interop.Dwmapi.dll"/>
+			</Component>
+			<Component Id="Gdi32InteropAssemblyComponent" Guid="24CEA737-0699-4C32-8030-85F54D2E5129">
+				<File Id="Gdi32InteropAssembly" Name="Win32Interop.Gdi32.dll" Source="$(var.EasyConnect.TargetDir)Win32Interop.Gdi32.dll"/>
+			</Component>
+			<Component Id="Kernel32InteropAssemblyComponent" Guid="40AA7397-9EC5-4462-B6AB-C762218BED83">
+				<File Id="Kernel32InteropAssembly" Name="Win32Interop.Kernel32.dll" Source="$(var.EasyConnect.TargetDir)Win32Interop.Kernel32.dll"/>
+			</Component>
+			<Component Id="User32InteropAssemblyComponent" Guid="13C89588-5893-4514-B86D-0698D647D9AC">
+				<File Id="User32InteropAssembly" Name="Win32Interop.User32.dll" Source="$(var.EasyConnect.TargetDir)Win32Interop.User32.dll"/>
+			</Component>
+			<Component Id="UxthemeInteropAssemblyComponent" Guid="45859B10-E9BD-4439-B393-607A8AC523C4">
+				<File Id="UxthemeInteropAssembly" Name="Win32Interop.Uxtheme.dll" Source="$(var.EasyConnect.TargetDir)Win32Interop.Uxtheme.dll"/>
+			</Component>
+			<Component Id="AutoUpdateComponent" Guid="0D3C0544-EB17-4E32-A8F4-766BC41ACE82">
+				<File Id="AutoUpdateAssembly" Name="AppLimit.NetSparkle.Net40.dll" Source="$(var.EasyConnect.TargetDir)AppLimit.NetSparkle.Net40.dll"/>
+			</Component>
+		</ComponentGroup>
+		<ComponentGroup Id="RdpPluginComponents" Directory="INSTALLFOLDER">
+			<Component Id="RdpPluginAssemblyComponent" Guid="5DE75ACB-FFE2-40E0-8FD0-365132D5E4BF">
+				<File Id="RdpPluginAssembly" Name="$(var.EasyConnect.Protocols.Rdp.TargetFileName)" Source="$(var.EasyConnect.Protocols.Rdp.TargetPath)"/>
+				<File Id="MstsclibAxInteropAssembly" Name="AxInterop.MSTSCLib.dll" Source="$(var.EasyConnect.Protocols.Rdp.TargetDir)AxInterop.MSTSCLib.dll"/>
+				<File Id="MstsclibInteropAssembly" Name="Interop.MSTSCLib.dll" Source="$(var.EasyConnect.Protocols.Rdp.TargetDir)Interop.MSTSCLib.dll"/>
+			</Component>
+		</ComponentGroup>
+		<ComponentGroup Id="VncPluginComponents" Directory="INSTALLFOLDER">
+			<Component Id="VncPluginAssemblyComponent" Guid="D39F04E9-B216-4EDB-A041-FFEB65AB0AE5">
+				<File Id="VncPluginAssembly" Name="$(var.EasyConnect.Protocols.Vnc.TargetFileName)" Source="$(var.EasyConnect.Protocols.Vnc.TargetPath)"/>
+				<File Id="VncSharpAssembly" Name="VncSharp.dll" Source="$(var.EasyConnect.Protocols.Vnc.TargetDir)VncSharp.dll"/>
+			</Component>
+		</ComponentGroup>
+		<ComponentGroup Id="SshPluginComponents" Directory="INSTALLFOLDER">
+			<Component Id="SshPluginAssemblyComponent" Guid="779FA6DA-64F2-4FB5-9BF7-7CA5E0EC6FB6">
+				<File Id="SshPluginAssembly" Name="$(var.EasyConnect.Protocols.Ssh.TargetFileName)" Source="$(var.EasyConnect.Protocols.Ssh.TargetPath)"/>
+			</Component>
+		</ComponentGroup>
+		<ComponentGroup Id="TerminalControlComponents" Directory="INSTALLFOLDER">
+			<Component Id="TerminalControlAssemblyComponent" Guid="551F46DF-CB96-4FFA-865C-307373054014">
+				<File Id="TerminalControlAssembly" Name="$(var.TerminalControl.TargetFileName)" Source="$(var.TerminalControl.TargetPath)"/>
+			</Component>
+		</ComponentGroup>
+		<ComponentGroup Id="PoderosaComponents" Directory="INSTALLFOLDER">
+			<Component Id="PoderosaAssemblyComponent" Guid="81FD4C1D-C53D-49D5-BF25-9D35FD01D975">
+				<File Id="GranadosAssembly" Name="Granados.dll" Source="$(var.EasyConnect.Protocols.Ssh.TargetDir)Granados.dll"/>
+				<File Id="PoderosaCoreAssembly" Name="Poderosa.Core.dll" Source="$(var.EasyConnect.Protocols.Ssh.TargetDir)Poderosa.Core.dll"/>
+				<File Id="PoderosaPluginAssembly" Name="Poderosa.Plugin.dll" Source="$(var.EasyConnect.Protocols.Ssh.TargetDir)Poderosa.Plugin.dll"/>
+				<File Id="PoderosaPortForwardingAssembly" Name="Poderosa.PortForwardingCommand.dll" Source="$(var.EasyConnect.Protocols.Ssh.TargetDir)Poderosa.PortForwardingCommand.dll"/>
+				<File Id="PoderosaProtocolsAssembly" Name="Poderosa.Protocols.dll" Source="$(var.EasyConnect.Protocols.Ssh.TargetDir)Poderosa.Protocols.dll"/>
+				<File Id="PoderosaTerminalControlAssembly" Name="Poderosa.TerminalControl.dll" Source="$(var.EasyConnect.Protocols.Ssh.TargetDir)Poderosa.TerminalControl.dll"/>
+				<File Id="PoderosaTerminalEmulatorAssembly" Name="Poderosa.TerminalEmulator.dll" Source="$(var.EasyConnect.Protocols.Ssh.TargetDir)Poderosa.TerminalEmulator.dll"/>
+				<File Id="PoderosaTerminalSessionAssembly" Name="Poderosa.TerminalSession.dll" Source="$(var.EasyConnect.Protocols.Ssh.TargetDir)Poderosa.TerminalSession.dll"/>
+				<File Id="PoderosaUIAssembly" Name="Poderosa.UI.dll" Source="$(var.EasyConnect.Protocols.Ssh.TargetDir)Poderosa.UI.dll"/>
+			</Component>
+		</ComponentGroup>
+		<ComponentGroup Id="PowerShellPluginComponents" Directory="INSTALLFOLDER">
+			<Component Id="PowerShellPluginAssemblyComponent" Guid="92824FC5-431B-46D6-A9D7-211C50253396">
+				<File Id="PowerShellPluginAssembly" Name="$(var.EasyConnect.Protocols.PowerShell.TargetFileName)" Source="$(var.EasyConnect.Protocols.PowerShell.TargetPath)"/>
+			</Component>
+		</ComponentGroup>
+		<ComponentGroup Id="StartMenuComponents" Directory="ApplicationStartMenuFolder">
+			<Component Id="StartMenuFolderComponent" Guid="F3037868-DF6C-4566-880C-FA803EF8E742">
+				<Shortcut Id="StartMenuShortcut" Name="$(var.EasyConnect.ProjectName)" Directory="ApplicationStartMenuFolder" Target="[INSTALLFOLDER]$(var.EasyConnect.TargetFileName)" WorkingDirectory="INSTALLFOLDER"/>
+				<RemoveFolder Id="ApplicationStartMenuFolder" On="uninstall"/>
+				<RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Type="string" Value="" KeyPath="yes" />
+			</Component>
+		</ComponentGroup>
+	</Fragment>
+</Wix>

@@ -40,16 +40,19 @@
 			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this._updatesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this._toolsMenuSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+			this._aboutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this._exitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this._bookmarksMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this._bookmarksManagerMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
 			this.bookmarkThisSiteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolbarBackground = new System.Windows.Forms.Panel();
+			this._urlPanelContainer = new System.Windows.Forms.Panel();
 			this._toolsButton = new System.Windows.Forms.PictureBox();
 			this._bookmarksButton = new System.Windows.Forms.PictureBox();
 			this.urlTextBox = new System.Windows.Forms.TextBox();
 			this.urlBorder = new System.Windows.Forms.Panel();
 			this.urlBackground = new System.Windows.Forms.Panel();
+			this._iconPictureBox = new System.Windows.Forms.PictureBox();
 			this._connectionContainerPanel = new System.Windows.Forms.Panel();
 			this._omniBarPanel = new System.Windows.Forms.Panel();
 			this._omniBarBorder = new System.Windows.Forms.Panel();
@@ -59,6 +62,8 @@
 			((System.ComponentModel.ISupportInitialize)(this._toolsButton)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this._bookmarksButton)).BeginInit();
 			this.urlBorder.SuspendLayout();
+			this.urlBackground.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this._iconPictureBox)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// _toolsMenu
@@ -73,9 +78,12 @@
             this.toolStripSeparator2,
             this._updatesMenuItem,
             this._toolsMenuSeparator2,
+            this._aboutMenuItem,
             this._exitMenuItem});
 			this._toolsMenu.Name = "_toolsMenu";
+			this._toolsMenu.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
 			this._toolsMenu.Size = new System.Drawing.Size(187, 182);
+			this._toolsMenu.VisibleChanged += new System.EventHandler(this._toolsMenu_VisibleChanged);
 			// 
 			// _newTabMenuItem
 			// 
@@ -128,7 +136,7 @@
 			this._updatesMenuItem.Name = "_updatesMenuItem";
 			this._updatesMenuItem.Size = new System.Drawing.Size(186, 22);
 			this._updatesMenuItem.Text = "Check for update";
-			this._updatesMenuItem.Visible = false;
+	        this._updatesMenuItem.Visible = false;
 			this._updatesMenuItem.Click += new System.EventHandler(this._updatesMenuItem_Click);
 			// 
 			// _toolsMenuSeparator2
@@ -136,6 +144,13 @@
 			this._toolsMenuSeparator2.Name = "_toolsMenuSeparator2";
 			this._toolsMenuSeparator2.Size = new System.Drawing.Size(183, 6);
 			this._toolsMenuSeparator2.Visible = false;
+			// 
+			// _aboutMenuItem
+			// 
+			this._aboutMenuItem.Name = "_aboutMenuItem";
+			this._aboutMenuItem.Size = new System.Drawing.Size(186, 22);
+			this._aboutMenuItem.Text = "About...";
+			this._aboutMenuItem.Click += new System.EventHandler(this._aboutMenuItem_Click);
 			// 
 			// _exitMenuItem
 			// 
@@ -150,7 +165,9 @@
             this._bookmarksManagerMenuItem2,
             this.bookmarkThisSiteToolStripMenuItem});
 			this._bookmarksMenu.Name = "_bookmarksMenu";
+			this._bookmarksMenu.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
 			this._bookmarksMenu.Size = new System.Drawing.Size(259, 48);
+			this._bookmarksMenu.VisibleChanged += new System.EventHandler(this._bookmarksMenu_VisibleChanged);
 			// 
 			// _bookmarksManagerMenuItem2
 			// 
@@ -172,6 +189,7 @@
 			// toolbarBackground
 			// 
 			this.toolbarBackground.BackgroundImage = global::EasyConnect.Properties.Resources.ToolbarBackground;
+			this.toolbarBackground.Controls.Add(this._urlPanelContainer);
 			this.toolbarBackground.Controls.Add(this._toolsButton);
 			this.toolbarBackground.Controls.Add(this._bookmarksButton);
 			this.toolbarBackground.Controls.Add(this.urlTextBox);
@@ -182,6 +200,16 @@
 			this.toolbarBackground.Size = new System.Drawing.Size(622, 36);
 			this.toolbarBackground.TabIndex = 5;
 			this.toolbarBackground.Click += new System.EventHandler(this.toolbarBackground_Click);
+			// 
+			// _urlPanelContainer
+			// 
+			this._urlPanelContainer.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this._urlPanelContainer.BackColor = System.Drawing.Color.White;
+			this._urlPanelContainer.Location = new System.Drawing.Point(34, 8);
+			this._urlPanelContainer.Name = "_urlPanelContainer";
+			this._urlPanelContainer.Size = new System.Drawing.Size(509, 19);
+			this._urlPanelContainer.TabIndex = 0;
 			// 
 			// _toolsButton
 			// 
@@ -221,10 +249,10 @@
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.urlTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this.urlTextBox.Font = new System.Drawing.Font("Tahoma", 11.25F);
-			this.urlTextBox.Location = new System.Drawing.Point(14, 8);
+			this.urlTextBox.Location = new System.Drawing.Point(34, 8);
 			this.urlTextBox.Margin = new System.Windows.Forms.Padding(9);
 			this.urlTextBox.Name = "urlTextBox";
-			this.urlTextBox.Size = new System.Drawing.Size(529, 19);
+			this.urlTextBox.Size = new System.Drawing.Size(509, 19);
 			this.urlTextBox.TabIndex = 0;
 			this.urlTextBox.WordWrap = false;
 			this.urlTextBox.TextChanged += new System.EventHandler(this.urlTextBox_TextChanged);
@@ -249,18 +277,27 @@
 			this.urlBackground.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.urlBackground.BackColor = System.Drawing.Color.White;
+			this.urlBackground.Controls.Add(this._iconPictureBox);
 			this.urlBackground.ForeColor = System.Drawing.Color.Silver;
 			this.urlBackground.Location = new System.Drawing.Point(1, 1);
 			this.urlBackground.Name = "urlBackground";
 			this.urlBackground.Size = new System.Drawing.Size(546, 24);
 			this.urlBackground.TabIndex = 2;
 			// 
+			// _iconPictureBox
+			// 
+			this._iconPictureBox.Location = new System.Drawing.Point(4, 4);
+			this._iconPictureBox.Name = "_iconPictureBox";
+			this._iconPictureBox.Size = new System.Drawing.Size(16, 16);
+			this._iconPictureBox.TabIndex = 0;
+			this._iconPictureBox.TabStop = false;
+			// 
 			// _connectionContainerPanel
 			// 
 			this._connectionContainerPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this._connectionContainerPanel.BackColor = System.Drawing.Color.White;
+			this._connectionContainerPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(249)))), ((int)(((byte)(249)))), ((int)(((byte)(249)))));
 			this._connectionContainerPanel.Location = new System.Drawing.Point(0, 36);
 			this._connectionContainerPanel.Name = "_connectionContainerPanel";
 			this._connectionContainerPanel.Size = new System.Drawing.Size(622, 399);
@@ -311,6 +348,8 @@
 			((System.ComponentModel.ISupportInitialize)(this._toolsButton)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this._bookmarksButton)).EndInit();
 			this.urlBorder.ResumeLayout(false);
+			this.urlBackground.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this._iconPictureBox)).EndInit();
 			this.ResumeLayout(false);
 
         }
@@ -340,5 +379,8 @@
         private System.Windows.Forms.ToolStripMenuItem _updatesMenuItem;
         private System.Windows.Forms.Panel _omniBarPanel;
         private System.Windows.Forms.Panel _omniBarBorder;
+		private System.Windows.Forms.ToolStripMenuItem _aboutMenuItem;
+		private System.Windows.Forms.PictureBox _iconPictureBox;
+		private System.Windows.Forms.Panel _urlPanelContainer;
     }
 }
